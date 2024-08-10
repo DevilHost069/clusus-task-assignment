@@ -1,0 +1,103 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+# filebeat.inputs:
+# - type: log
+#   enabled: true
+#   paths:
+#     - /var/log/nginx/*.log
+#   exclude_lines: ["127.0.0.1"]
+#   exclude_files: [".gz$"]
+#   ignore_older: 24h
+#   tags: ["prod","nginx-proxy"]
+#   fields:
+#    env: prod
+#    owner: royal
+#    part: backend
+
+# - type: container
+#   enabled: true
+  # paths:
+  # - '/var/lib/docker/containers/*/*.log'
+
+# filebeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
+
+# filebeat.autodiscover:
+#   providers:
+#     - type: docker
+#       templates:
+#         - condition:
+#             contains:
+#               docker.container.image: nginxproxy/nginx-proxy
+#           config:
+#             - module: nginx
+#               log:
+#                 input:
+#                   type: container
+#                   paths:
+#                     - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        # tomcat throw multiline exceptions
+        - condition:
+            or:
+              - equals:
+                  docker.container.labels.tomcat_service: app-api-1
+              - equals:
+                  docker.container.labels.tomcat_service: app-api-2
+              - equals:
+                  docker.container.labels.tomcat_service: app-api-3
+          config:
+            - type: container
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              multiline.type: pattern
+              multiline.pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+              multiline.negate: true
+              multiline.match: after
+              fields:
+                log_type: docker
+              fields_under_root: true
+        - condition:
+            or:
+              - equals:
+                  docker.container.labels.nginx_service: nginx-proxy
+              - equals:
+                  docker.container.labels.nginx_service: nginx-acme-ssl
+          config:
+            - type: container
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              fields:
+                log_type: docker
+              fields_under_root: true
+        - condition:
+            equals:
+              docker.container.labels.slingnode_layer: consensus
+          config:
+            - type: container
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              fields:
+                log_type: docker
+              fields_under_root: true
+
+processors:
+- add_cloud_metadata: ~
+
+output.logstash:
+  enabled: true
+  hosts: [ "logstash:5044" ]
+
+# output.elasticsearch:
+#   hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+#   username: '${ELASTICSEARCH_USERNAME:}'
+#   password: '${ELASTICSEARCH_PASSWORD:}'

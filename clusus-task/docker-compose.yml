@@ -1,0 +1,206 @@
+version: '3'
+services:
+  # Proxy + companion for HTTPS
+  nginx-proxy:
+        image: nginxproxy/nginx-proxy
+        container_name: nginx-proxy
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - conf:/etc/nginx/conf.d
+            - vhost:/etc/nginx/vhost.d
+            - html:/usr/share/nginx/html
+            - certs:/etc/nginx/certs:ro
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+        labels:
+          nginx_service: "nginx-proxy"
+        networks:
+            - clusus-task-nw
+  acme-companion:
+        image: nginxproxy/acme-companion
+        container_name: nginx-proxy-acme
+        environment:
+            - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
+        volumes_from:
+            - nginx-proxy
+        volumes:
+            - certs:/etc/nginx/certs:rw
+            - acme:/etc/acme.sh
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        labels:
+          nginx_service: "nginx-acme-ssl"
+        networks:
+            - clusus-task-nw
+  app-api-1:
+    container_name: app-api-1
+    build:
+      context: ./spring-boot-docker-starter
+      dockerfile: Dockerfile
+    ports:
+      - 8070:8080
+    environment:
+       - LETSENCRYPT_HOST=${APP_LETSENCRYPT_HOST}
+       - VIRTUAL_HOST=${APP_VIRTUAL_HOST}
+       - VIRTUAL_PORT=${APP_VIRTUAL_PORT}
+
+    labels:
+          tomcat_service: "app-api-1"
+    networks:
+            - clusus-task-nw
+    depends_on:
+      - mysql-db
+
+  app-api-2:
+    container_name: app-api-2
+    build:
+      context: ./spring-boot-docker-starter
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+       - LETSENCRYPT_HOST=${APP_LETSENCRYPT_HOST}
+       - VIRTUAL_HOST=${APP_VIRTUAL_HOST}
+       - VIRTUAL_PORT=${APP_VIRTUAL_PORT}
+
+    labels:
+          tomcat_service: "app-api-2"
+    networks:
+            - clusus-task-nw
+    depends_on:
+      - mysql-db
+
+  app-api-3:
+    container_name: app-api-3
+    build:
+      context: ./spring-boot-docker-starter
+      dockerfile: Dockerfile
+    ports:
+      - 8090:8080
+    environment:
+       - LETSENCRYPT_HOST=${APP_LETSENCRYPT_HOST}
+       - VIRTUAL_HOST=${APP_VIRTUAL_HOST}
+       - VIRTUAL_PORT=${APP_VIRTUAL_PORT}
+
+    labels:
+          tomcat_service: "app-api-3"
+    networks:
+            - clusus-task-nw
+    depends_on:
+      - mysql-db
+
+  mysql-db:
+   image: mysql:5.7
+   container_name: mysql-db
+   restart: always
+   ports:
+     - "3306:3306"
+   environment:
+     - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+     - MYSQL_DATABASE=${MYSQL_DATABASE}
+     - MYSQL_USER=${MYSQL_USER}
+     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+   volumes:
+     - ./db:/var/lib/mysql 
+   networks:
+      - clusus-task-nw
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.9.1}
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data/
+      - ./elk-config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      - discovery.type=single-node
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - cluster.name=elasticsearch
+      - bootstrap.memory_lock=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    networks:
+      - clusus-task-nw
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${ELASTIC_VERSION:-7.9.1}
+    container_name: logstash
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    environment:
+      - xpack.monitoring.enabled=false
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=http://elasticsearch:9200
+    volumes:
+      - ./elk-config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./elk-config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ls_data:/usr/share/logstash/data
+
+    networks:
+      - clusus-task-nw
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.9.1
+    container_name: filebeat
+    user: root
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - ./elk-config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - registry:/usr/share/filebeat/data:rw
+    labels:
+      - "filebeat_enable=true" 
+    networks:
+      - clusus-task-nw
+    depends_on:
+      - elasticsearch
+      - logstash
+      - kibana 
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-7.9.1}
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - LETSENCRYPT_HOST=${KIBANA_LETSENCRYPT_HOST}
+      - VIRTUAL_HOST=${KIBANA_VIRTUAL_HOST}
+      - VIRTUAL_PORT=${KIBANA_VIRTUAL_PORT}
+    volumes:
+      # - ./elk-config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - kb_data:/usr/share/kibana/data
+    networks:
+      - clusus-task-nw
+    depends_on:
+      - elasticsearch
+
+networks:
+  clusus-task-nw:
+    driver: bridge
+
+volumes:
+  es_data:
+  ls_data:
+  kb_data:
+  conf:
+  vhost:
+  html:
+  certs:
+  acme:
+  registry:
+
+    
