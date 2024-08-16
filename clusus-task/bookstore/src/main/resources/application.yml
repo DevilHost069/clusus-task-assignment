@@ -1,0 +1,4 @@
+logging:
+  level:
+    com.bookStore.controller: DEBUG
+    # root: DEBUGcd
