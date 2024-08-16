@@ -1,0 +1,19 @@
+# Stage 1: Build WAR
+FROM openjdk:17-jdk-slim AS build-stage
+WORKDIR /app
+COPY gradlew gradlew
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
+COPY src src
+RUN chmod +x gradlew
+RUN ["./gradlew", "clean", "war", "--no-daemon"]
+
+
+# Stage 2: Deploy to Tomcat
+FROM tomcat:10-jdk17-openjdk-slim
+# FROM tomcat:9.0.93-jdk11-temurin-jammy
+RUN rm -rf /usr/local/tomcat/webapps/*
+COPY --from=build-stage /app/build/libs/bookstore-application-v1.0.1-plain.war /usr/local/tomcat/webapps/ROOT.war
+# COPY bookstore-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+EXPOSE 8080
+CMD ["catalina.sh", "run"]

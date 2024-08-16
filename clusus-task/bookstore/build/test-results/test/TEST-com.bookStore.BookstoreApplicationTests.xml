@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bookStore.BookstoreApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-08-16T10:26:23" hostname="cloudyninjas" time="0.506">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.bookStore.BookstoreApplicationTests" time="0.506"/>
+  <system-out><![CDATA[16:11:20.732 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.bookStore.BookstoreApplicationTests]: BookstoreApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:11:20.815 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.bookStore.BookstoreApplication for test class com.bookStore.BookstoreApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::       (v3.3.3-SNAPSHOT)
+
+2024-08-16T16:11:21.171+05:45  INFO 165114 --- [bookstore] [    Test worker] c.bookStore.BookstoreApplicationTests    : Starting BookstoreApplicationTests using Java 17.0.12 with PID 165114 (started by acer in /home/acer/workspace/miscellenious/clusus-task-assignment/clusus-task/bookstore)
+2024-08-16T16:11:21.173+05:45  INFO 165114 --- [bookstore] [    Test worker] c.bookStore.BookstoreApplicationTests    : No active profile set, falling back to 1 default profile: "default"
+2024-08-16T16:11:21.730+05:45  INFO 165114 --- [bookstore] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-08-16T16:11:21.747+05:45  INFO 165114 --- [bookstore] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 10 ms. Found 0 JPA repository interfaces.
+2024-08-16T16:11:22.147+05:45  INFO 165114 --- [bookstore] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-08-16T16:11:22.204+05:45  INFO 165114 --- [bookstore] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-08-16T16:11:22.237+05:45  INFO 165114 --- [bookstore] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-08-16T16:11:22.475+05:45  INFO 165114 --- [bookstore] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-08-16T16:11:22.501+05:45  INFO 165114 --- [bookstore] [    Test worker] com.zaxxer.hikari.HikariDataSource       : clusustask_db - Starting...
+2024-08-16T16:11:22.866+05:45  INFO 165114 --- [bookstore] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : clusustask_db - Added connection com.mysql.cj.jdbc.ConnectionImpl@350567f1
+2024-08-16T16:11:22.868+05:45  INFO 165114 --- [bookstore] [    Test worker] com.zaxxer.hikari.HikariDataSource       : clusustask_db - Start completed.
+2024-08-16T16:11:22.901+05:45  WARN 165114 --- [bookstore] [    Test worker] org.hibernate.dialect.Dialect            : HHH000511: The 5.7.44 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2024-08-16T16:11:22.905+05:45  WARN 165114 --- [bookstore] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-08-16T16:11:23.180+05:45  INFO 165114 --- [bookstore] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-08-16T16:11:23.183+05:45  INFO 165114 --- [bookstore] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-08-16T16:11:23.313+05:45  WARN 165114 --- [bookstore] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-08-16T16:11:23.723+05:45  INFO 165114 --- [bookstore] [    Test worker] c.bookStore.BookstoreApplicationTests    : Started BookstoreApplicationTests in 2.786 seconds (process running for 4.03)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

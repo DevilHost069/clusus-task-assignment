@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Main-Class: org.springframework.boot.loader.launch.WarLauncher
+Start-Class: com.bookStore.BookstoreApplication
+Spring-Boot-Version: 3.3.3-SNAPSHOT
+Spring-Boot-Classes: WEB-INF/classes/
+Spring-Boot-Lib: WEB-INF/lib/
+Spring-Boot-Classpath-Index: WEB-INF/classpath.idx
+Spring-Boot-Layers-Index: WEB-INF/layers.idx
+Build-Jdk-Spec: 17
+Implementation-Title: bookstore
+Implementation-Version: v1.0.1
+

@@ -11,8 +11,9 @@ RUN ["./gradlew", "clean", "war", "--no-daemon"]
 
 # Stage 2: Deploy to Tomcat
 FROM tomcat:10-jdk17-openjdk-slim
+# FROM tomcat:9.0.93-jdk11-temurin-jammy
 RUN rm -rf /usr/local/tomcat/webapps/*
 COPY --from=build-stage /app/build/libs/demo-0.0.1-SNAPSHOT-plain.war /usr/local/tomcat/webapps/ROOT.war
-# COPY clusustask.war /usr/local/tomcat/webapps/ROOT.war
+# COPY bookstore-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
